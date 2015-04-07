@@ -1,0 +1,19 @@
+/*
+ * DokuWiki Plugin ExtLink;
+ */
+a.openwindow {
+    color: #03c;
+    -webkit-transition: 0.5s;
+    -moz-transition: 0.5s;
+    -o-transition: 0.5s;
+    -ms-transition: 0.5s;
+    transition: 0.5s;   
+}
+a.openwindow:hover {
+    color: #39f;
+}
+a.openwindow:after {
+    padding: 0 2px;
+    content:"⤴";
+}
+
