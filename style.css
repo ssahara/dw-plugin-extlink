@@ -15,5 +15,7 @@ a.openwindow:hover {
 a.openwindow:after {
     padding: 0 2px;
     content:"⤴";
+    font-size: 80%;
+    vertical-align: text-top;
 }
 

@@ -120,9 +120,9 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
 
                 error_log('LINK2 handle0: target='.$target.' params='.$params.' link='.$link);
 
-                $opts['link']   = $link;
-                if (!empty($target)) $opts['target'] = $target;
                 if (!empty($params)) $opts = $this->_parseArgs($params);
+                if (!empty($target)) $opts['target'] = $target;
+                $opts['link']   = $link;
                 return array($state, $opts);
 
             case DOKU_LEXER_UNMATCHED:
@@ -173,7 +173,7 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
                     // add class
                     $ptn = '/(class=[\"\'])(.*[\"\'])/';
                     if (preg_match($ptn, $html) === 1) {
-                        $html = preg_replace($ptn, '${1}opewnwindow ${2}', $html);
+                        $html = preg_replace($ptn, '${1}openwindow ${2}', $html);
                     } else {
                         $html = str_replace('<a ', 'class="openwindown" ', $html);
                     }
