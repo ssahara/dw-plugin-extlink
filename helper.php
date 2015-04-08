@@ -27,7 +27,7 @@ class helper_plugin_extlink extends DokuWiki_Plugin {
         preg_match_all($pattern, $args, $matches, PREG_SET_ORDER);
         foreach ($matches as $m) {
 
-            if (preg_match('/^([\'"`])(.*)\g{-1}$/', $m[2], $match)) {
+            if (preg_match('/^([\'"`])(.*)\g{-2}$/', $m[2], $match)) {
                 $m[2] = $match[2]; // de-quote
             }
 
