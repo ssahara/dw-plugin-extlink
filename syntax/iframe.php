@@ -19,7 +19,7 @@ require_once DOKU_PLUGIN.'syntax.php';
 
 class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
 
-    protected $entry_pattern   = '<iframe\b.*?>(?=.*?</iframe>)';
+    protected $entry_pattern   = '<iframe\b.*?\>(?=.*?</iframe>)';
     protected $exit_pattern    = '</iframe>';
     protected $special_pattern = '{{iframe\b.*?\>.*?}}';
 
@@ -48,7 +48,7 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
 
         switch ($state) {
             case DOKU_LEXER_ENTER:
-                if ($this->getConf('iframe_direct') {
+                if ($this->getConf('iframe_direct')) {
                     return array($state, $match);
                 }
             case DOKU_LEXER_SPECIAL:
@@ -89,7 +89,7 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
 
         switch($state) {
             case DOKU_LEXER_ENTER:
-                if ($this->getConf('iframe_direct') {
+                if ($this->getConf('iframe_direct')) {
                     $renderer->doc .= $opts;
                     break;
                 }
