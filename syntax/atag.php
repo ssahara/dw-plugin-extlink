@@ -35,7 +35,7 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
     public function getType()  { return 'substition'; }
     public function getAllowedTypes() { return array('formatting', 'substition', 'disabled'); }
     public function getPType() { return 'normal'; }
-    public function getSort()  { return 295; }
+    public function getSort()  { return 295; } // < Doku_Parser_Mode_internallink(=300)
 
     public function connectTo($mode) {
         // 順番が大事
@@ -45,48 +45,6 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
     public function postConnect() {
         $this->Lexer->addExitPattern($this->exit_pattern, substr(get_class($this), 7));
     }
-
-    private function _parseArgs($args='') {
-        $opts = array();
-
-        // key = "value" or key = value 形式
-        $val = '([\'"`])(?:[^\'"`]*)\g{-1}|[^\'"`\s]+'; // 前半はクォート式、後半は非クォート式
-        $pattern = "/(\w+)\s*=\s*($val)/";
-        preg_match_all($pattern, $args, $matches, PREG_SET_ORDER);
-        foreach ($matches as $m) {
-            $opts[strtolower($m[1])] = $m[2];
-            $args = str_replace($m[0], '', $args); // remove parsed substring
-            msg('parse: opts['.$m[1].']='.$m[2] ,0);
-        }
-
-        // サイズ指定 （w100% h50px 形式）|（100x50 形式）
-        $val = '\b([wh])([-+]?\d*(?:\.\d+)?(?:em|pt|px|%)?)'.'|';
-        $val.= '\b(\d+)[xX](\d+)\b';
-        $pattern = "/(?:$val)/";
-        preg_match_all($pattern, $args, $matches, PREG_SET_ORDER);
-        foreach ($matches as $m) {
-            if (count($m) == 3) {
-                $opts[strtolower($m[1])] = $m[2];
-            } else {
-                $opts['width']  = $m[3];
-                $opts['height'] = $m[4];
-            }
-            $args = str_replace($m[0], '', $args); // remove parsed substring
-        }
-
-        // id 最初に指定したもののみ有効
-        if (preg_match('/#([\w-]+)/', $args, $m)) {
-            $opts['id'] = $m[1];
-        }
-        
-        // 残り //連続する半角スペースを1つの半角スペースへ
-        $args = preg_replace('/\s+/', ' ', $words);
-        $opts['residue'] = trim($args);
-
-        return $opts;
-    }
-
-
 
     /**
      * handle syntax
@@ -104,13 +62,12 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
                 // check last part of params (shotcut of interwiki)
                 $shortcut = substr($params, strrpos($params, ' ')+1);
                 if (in_array($shortcut, array_keys(getInterwiki()))) {
-                    // paramsの末尾は interwikiのキーワード
                     $link = $shortcut.'>'.$link;
                     $params = substr($params, 0, strrpos($params, ' '));
                 }
                 $params = rtrim($params);
                 
-                // get the first param (target)
+                // get the first param (target attribute of <a> tag)
                 list($target, $params) = explode(' ', $params, 2);
                 if ($target == '!!') {
                     $target = 'window';
@@ -120,7 +77,11 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
 
                 error_log('LINK2 handle0: target='.$target.' params='.$params.' link='.$link);
 
-                if (!empty($params)) $opts = $this->_parseArgs($params);
+                // parameters
+                if (!empty($params)) {
+                    $args = $this->loadHelper($this->getPluginName());
+                    $opts = $args->parse($params);
+                }
                 if (!empty($target)) $opts['target'] = $target;
                 $opts['link']   = $link;
                 return array($state, $opts);
@@ -192,7 +153,7 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
     }
 
 
-    function _window_open($opts) {
+    private function _window_open($opts) {
 
         $win['width']  = ($opts['width'])  ?: $opts['w'];
         $win['height'] = ($opts['height']) ?: $opts['h'];
