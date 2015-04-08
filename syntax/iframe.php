@@ -47,8 +47,11 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
     public function handle($match, $state, $pos, Doku_Handler $handler){
 
         switch ($state) {
-            case DOKU_LEXER_SPECIAL:
             case DOKU_LEXER_ENTER:
+                if ($this->getConf('iframe_direct') {
+                    return array($state, $match);
+                }
+            case DOKU_LEXER_SPECIAL:
                 $match = substr(trim($match, '{}<>'), strlen('iframe'));
 
                 list($params, $id) = explode('>', $match, 2);
@@ -85,8 +88,12 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
         list($state, $opts) = $data;
 
         switch($state) {
-            case DOKU_LEXER_SPECIAL:
             case DOKU_LEXER_ENTER:
+                if ($this->getConf('iframe_direct') {
+                    $renderer->doc .= $opts;
+                    break;
+                }
+            case DOKU_LEXER_SPECIAL:
                 $html = '<iframe';
                 // src, name, height, width のほか、title, id, class, style のみ使用可能とする
                 // src attribute
