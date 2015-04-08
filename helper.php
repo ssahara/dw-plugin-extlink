@@ -26,9 +26,13 @@ class helper_plugin_extlink extends DokuWiki_Plugin {
         $pattern = "/(\w+)\s*=\s*($val)/";
         preg_match_all($pattern, $args, $matches, PREG_SET_ORDER);
         foreach ($matches as $m) {
+
+            if (preg_match('/^([\'"`])(.*)\g{-1}$/', $m[2], $match)) {
+                $m[2] = $match[2]; // de-quote
+            }
+
             $opts[strtolower($m[1])] = $m[2];
             $args = str_replace($m[0], '', $args); // remove parsed substring
-            msg('parse: opts['.$m[1].']='.$m[2] ,0);
         }
 
         // サイズ指定 （w100% h50px 形式）|（100x50 形式）
