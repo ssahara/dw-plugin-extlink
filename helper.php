@@ -44,11 +44,14 @@ class helper_plugin_extlink extends DokuWiki_Plugin {
             if (count($m) == 3) {
                 $opts[strtolower($m[1])] = $m[2];
             } else {
-                $opts['width']  = $m[3];
-                $opts['height'] = $m[4];
+                $opts['w'] = $m[3];
+                $opts['h'] = $m[4];
             }
             $args = str_replace($m[0], '', $args); // remove parsed substring
         }
+        if (!isset($opts['width'])  && isset($opts['w'])) $opts['width']  = $opts['w'];
+        if (!isset($opts['height']) && isset($opts['h'])) $opts['height'] = $opts['h'];
+        unset($opts['w'], $opts['h']);
 
         // id 最初に指定したもののみ有効
         if (preg_match('/#([\w-]+)/', $args, $m)) {
