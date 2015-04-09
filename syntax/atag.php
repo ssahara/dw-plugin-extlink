@@ -153,6 +153,9 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
     }
 
 
+    /**
+     * JavaScript to open a new window, executed as onclick event
+     */
     private function _window_open($opts) {
 
         if (array_key_exists('width',  $opts)) $win['width']  = $opts['width'];
@@ -165,12 +168,7 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
         $win['toolbar'] = array_key_exists('toolbar', $opts) ? $opts['toolbar'] : 0;
         $win['scrollbars'] = array_key_exists('scrollbars', $opts) ? $opts['scrollbars'] : 1;
 
-        foreach ($win as $key => $value) { $spec.= $key.'='.$value.','; }
-        $spec = rtrim($spec, ',');
-        //$spec = 'resizeable=1,location=1,status=1,titlebar=1,menubar=0,toolbar=0,scrollbars=1';
-        //$spec.= ($width) ? ',width='.$width : '';
-        //$spec.= ($height) ? ',height='.$height : '';
-        $js = "javascript:void window.open(this.href,'_blank','".$spec."'); return false;";
+        $js = "javascript:void window.open(this.href,'_blank','".implode(',', $win)."'); return false;";
         return $js;
     }
 
