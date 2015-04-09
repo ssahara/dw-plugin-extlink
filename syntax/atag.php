@@ -168,7 +168,10 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
         $win['toolbar'] = array_key_exists('toolbar', $opts) ? $opts['toolbar'] : 0;
         $win['scrollbars'] = array_key_exists('scrollbars', $opts) ? $opts['scrollbars'] : 1;
 
-        $js = "javascript:void window.open(this.href,'_blank','".implode(',', $win)."'); return false;";
+        foreach ($win as $key => $value) { $spec.= $key.'='.$value.','; }
+        $spec = rtrim($spec, ',');
+
+        $js = "javascript:void window.open(this.href,'_blank','".$spec."'); return false;";
         return $js;
     }
 
