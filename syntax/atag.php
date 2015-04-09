@@ -155,8 +155,8 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
 
     private function _window_open($opts) {
 
-        $win['width']  = ($opts['width'])  ?: $opts['w'];
-        $win['height'] = ($opts['height']) ?: $opts['h'];
+        //$win['width']  = ($opts['width'])  ?: 640;
+        //$win['height'] = ($opts['height']) ?: 400;
         $win['resizeable'] = array_key_exists('resizeable', $opts) ? $opts['resizeable'] : 1;
         $win['location'] = array_key_exists('location', $opts) ? $opts['location'] : 1;
         $win['status'] = array_key_exists('status', $opts) ? $opts['status'] : 1;

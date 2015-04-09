@@ -106,28 +106,21 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
                     $html.= ' name="'.$opts['name'].'"';
                 }
                 // width and height
-                $opts['width']  = ($opts['width'])  ?: $opts['w'];
-                $opts['height'] = ($opts['height']) ?: $opts['h'];
-                
-                if (isset($opts['width'])) {
-                    if (is_numeric($opts['width'])) {
-                        $html.= ' width='.$opts['width'];
-                    } else {
-                        $style['width'] = $opts['width'];
-                    }
+                if (array_key_exists('width', $opts) && is_numeric($opts['width'])) {
+                    $html.= ' width='.$opts['width'];
+                } else {
+                    $style['width'] = $opts['width'];
                 }
-                if (isset($opts['height'])) {
-                    if (is_numeric($opts['height'])) {
-                        $html.= ' height='.$opts['height'];
-                    } else {
-                        $style['height'] = $opts['height'];
-                    }
+                if (array_key_exists('height', $opts) && is_numeric($opts['height'])) {
+                    $html.= ' height='.$opts['height'];
+                } else {
+                    $style['height'] = $opts['height'];
                 }
                 foreach ($style as $key => $value) { $s.= $key.':'.$value.'; '; }
                 $s = trim($s);
                 if (!empty($s)) $html.= ' style="'.$s.'"';
                 
-                $html.= ' />';
+                $html.= '>';
                 $renderer->doc .= $html;
 
                 if ($state == DOKU_LEXER_SPECIAL) {

@@ -56,6 +56,7 @@ class helper_plugin_extlink extends DokuWiki_Plugin {
         // id 最初に指定したもののみ有効
         if (preg_match('/#([\w-]+)/', $args, $m)) {
             $opts['id'] = $m[1];
+            $args = str_replace($m[0], '', $args);
         }
         
         // 残り //連続する半角スペースを1つの半角スペースへ
