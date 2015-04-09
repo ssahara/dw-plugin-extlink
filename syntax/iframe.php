@@ -106,18 +106,13 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
                     $html.= ' name="'.$opts['name'].'"';
                 }
                 // width and height
-                if (array_key_exists('width', $opts)) {
-                    if (is_numeric($opts['width']) {
-                        $html.= ' width='.$opts['width'];
-                    } else {
-                        $css['width'] = 'width:'.$opts['width'].';';
-                    }
-                }
-                if (array_key_exists('height', $opts)) {
-                    if (is_numeric($opts['height']) {
-                        $html.= ' height='.$opts['height'];
-                    } else {
-                        $css['height'] = 'height:'.$opts['height'].';';
+                foreach( array('width', 'height') as $key) {
+                    if (array_key_exists($key, $opts)) {
+                        if (is_numeric($opts[$key])) {
+                            $html.= ' '.$key.'='.$opts[$key];
+                        } else {
+                            $css[$d] = $key.':'.$opts[$key].';';
+                        }
                     }
                 }
                 if (!empty($css)) $html.= ' style="'.implode(' ', $css).'"';
