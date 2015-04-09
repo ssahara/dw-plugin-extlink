@@ -106,20 +106,22 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
                     $html.= ' name="'.$opts['name'].'"';
                 }
                 // width and height
-                if (array_key_exists('width', $opts) && is_numeric($opts['width'])) {
-                    $html.= ' width='.$opts['width'];
-                } else {
-                    $style['width'] = $opts['width'];
+                if (array_key_exists('width', $opts)) {
+                    if (is_numeric($opts['width']) {
+                        $html.= ' width='.$opts['width'];
+                    } else {
+                        $css['width'] = 'width:'.$opts['width'].';';
+                    }
                 }
-                if (array_key_exists('height', $opts) && is_numeric($opts['height'])) {
-                    $html.= ' height='.$opts['height'];
-                } else {
-                    $style['height'] = $opts['height'];
+                if (array_key_exists('height', $opts)) {
+                    if (is_numeric($opts['height']) {
+                        $html.= ' height='.$opts['height'];
+                    } else {
+                        $css['height'] = 'height:'.$opts['height'].';';
+                    }
                 }
-                foreach ($style as $key => $value) { $s.= $key.':'.$value.'; '; }
-                $s = trim($s);
-                if (!empty($s)) $html.= ' style="'.$s.'"';
-                
+                if (!empty($css)) $html.= ' style="'.implode(' ', $css).'"';
+
                 $html.= '>';
                 $renderer->doc .= $html;
 
