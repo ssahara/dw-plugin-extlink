@@ -95,15 +95,11 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
                 }
             case DOKU_LEXER_SPECIAL:
                 $html = '<iframe';
-                // src, name, height, width のほか、title, id, class, style のみ使用可能とする
+                // src, height, width, name のほか、title, id, class, style のみ使用可能とする
                 // src attribute
-                if (isset($opts['src'])) {
+                if (array_key_exists('src', $opts)) {
                     $url = $this->_resolveSrcUrl($opts['src']);
                     $html.= ' src="'.$url.'"';
-                }
-                // name
-                if (isset($opts['name'])) {
-                    $html.= ' name="'.$opts['name'].'"';
                 }
                 // width and height
                 foreach( array('width', 'height') as $key) {
@@ -111,11 +107,18 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
                         if (is_numeric($opts[$key])) {
                             $html.= ' '.$key.'='.$opts[$key];
                         } else {
-                            $css[$d] = $key.':'.$opts[$key].';';
+                            $css = $key.':'.$opts[$key].';';
+                            $opts['style'].= ($opts['style']) ? ' '.$css : $css;
                         }
                     }
                 }
-                if (!empty($css)) $html.= ' style="'.implode(' ', $css).'"';
+
+                // name, id, style
+                foreach( array('name', 'id', 'style') as $key) {
+                    if (array_key_exists($key, $opts)) {
+                        $html.= ' '.$key.'="'.$opts[$key].'"';
+                    }
+                }
 
                 $html.= '>';
                 $renderer->doc .= $html;
