@@ -108,7 +108,7 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
                             $html.= ' '.$key.'='.$opts[$key];
                         } else {
                             $css = $key.':'.$opts[$key].';';
-                            $opts['style'].= ($opts['style']) ? ' '.$css : $css;
+                            $opts['style'].= ($opts['style']) ? $css.' '.$opts['style'] : $css;
                         }
                     }
                 }
