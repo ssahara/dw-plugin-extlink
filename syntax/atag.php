@@ -161,11 +161,11 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
         if (array_key_exists('width',  $opts)) $win['width']  = $opts['width'];
         if (array_key_exists('height', $opts)) $win['height'] = $opts['height'];
         $win['resizeable'] = array_key_exists('resizeable', $opts) ? $opts['resizeable'] : 1;
-        $win['location'] = array_key_exists('location', $opts) ? $opts['location'] : 1;
-        $win['status'] = array_key_exists('status', $opts) ? $opts['status'] : 1;
-        $win['titlebar'] = array_key_exists('titlebar', $opts) ? $opts['titlebar'] : 1;
-        $win['menubar'] = array_key_exists('menubar', $opts) ? $opts['menubar'] : 0;
-        $win['toolbar'] = array_key_exists('toolbar', $opts) ? $opts['toolbar'] : 0;
+        $win['location']   = array_key_exists('location', $opts) ? $opts['location'] : 1;
+        $win['status']     = array_key_exists('status', $opts) ? $opts['status'] : 1;
+        $win['titlebar']   = array_key_exists('titlebar', $opts) ? $opts['titlebar'] : 1;
+        $win['menubar']    = array_key_exists('menubar', $opts) ? $opts['menubar'] : 0;
+        $win['toolbar']    = array_key_exists('toolbar', $opts) ? $opts['toolbar'] : 0;
         $win['scrollbars'] = array_key_exists('scrollbars', $opts) ? $opts['scrollbars'] : 1;
 
         foreach ($win as $key => $value) { $spec.= $key.'='.$value.','; }
