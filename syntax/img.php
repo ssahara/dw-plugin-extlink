@@ -81,7 +81,7 @@ class syntax_plugin_extlink_img extends DokuWiki_Syntax_Plugin {
                         $opts['style'] = implode(' ', array($css, $opts['style']));
                     }
                 }
-                return array(State, $opts);
+                return array($state, $opts);
 
             case DOKU_LEXER_UNMATCHED:
                 // ignore title of "{{img> id | title }}"
