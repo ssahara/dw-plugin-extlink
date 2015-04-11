@@ -2,7 +2,6 @@
 /**
  * DokuWiki Plugin ExtLink; Syntax img
  * Google Drawing の 埋め込みHTML をそのまま使えるようにする。
- * DokuWiki本来のシンタックスとは異なるサイズ指定方法を使えるようにする。
  *
  * @license GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author  Satoshi Sahara <sahara.satoshi@gmail.com>
@@ -10,9 +9,6 @@
  * SYNTAX: <img src=... />
  *
  *         {{example.png?200x100|title}}   DokuWiki本来のシンタックス
- *
- *         {{img w200 h100> id?nolink|title}}
- *         {{img w100 h100> url|title}}
  *
  *  HTML5でサポートされている属性のみを処理する。
  *  @see also http://www.w3schools.com/tags/tag_img.asp
@@ -26,20 +22,14 @@ require_once DOKU_PLUGIN.'syntax.php';
 
 class syntax_plugin_extlink_img extends DokuWiki_Syntax_Plugin {
 
-    protected $match_pattern = '\<img\b.*?\>';
-    protected $entry_pattern = '{{img\b.*?>.*?\|(?=.*?}})';
-    protected $exit_pattern  = '}}';
-
     public function getType()  { return 'substition'; }
     public function getPType() { return 'normal'; }
     public function getSort()  { return 305; }
 
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern($this->match_pattern, $mode, substr(get_class($this), 7));
-        $this->Lexer->addEntryPattern($this->entry_pattern, $mode, substr(get_class($this), 7));
-    }
-    public function postConnect() {
-        $this->Lexer->addExitPattern($this->exit_pattern, substr(get_class($this), 7));
+        $this->Lexer->addSpecialPattern('\<img\b.*?\>',$mode,
+            substr(get_class($this), 7)
+        );
     }
 
     /**
@@ -52,7 +42,6 @@ class syntax_plugin_extlink_img extends DokuWiki_Syntax_Plugin {
                 if ($this->getConf('img_direct')) {
                     return array($state, $match);
                 }
-            case DOKU_LEXER_ENTER:     // {{img  >   |  // タイトルは含まれない
                 $match = substr(trim($match, '{}<>|'), strlen('img'));
 
                 list($params, $id) = explode('>', $match, 2);
@@ -82,12 +71,6 @@ class syntax_plugin_extlink_img extends DokuWiki_Syntax_Plugin {
                     }
                 }
                 return array($state, $opts);
-
-            case DOKU_LEXER_UNMATCHED:
-                // ignore title of "{{img> id | title }}"
-                break;
-            case DOKU_LEXER_EXIT:
-                return array($state, '');
         }
         return false;
     }
@@ -107,10 +90,11 @@ class syntax_plugin_extlink_img extends DokuWiki_Syntax_Plugin {
                     $renderer->doc .= $opts;
                     return true;
                 }
-            case DOKU_LEXER_ENTER:     // {{img  >   |  // タイトルは含まれない
+
                 $html = '<img';
 
-                // alt, height, ismap, src, usemap, width のほか、title, id, class, style のみ使用可能とする
+                // alt, height, ismap, src, usemap, width のほか、
+                // title, id, class, style のみ使用可能とする
                 // src attribute
                 if (isset($opts['src'])) {
                     $url = $this->_resolveSrcUrl($opts['src']);
@@ -138,12 +122,6 @@ class syntax_plugin_extlink_img extends DokuWiki_Syntax_Plugin {
 
                 $html.= '>';
                 $renderer->doc .= $html;
-                break;
-
-            case DOKU_LEXER_UNMATCHED:
-                // ignore title of "{{img> id | title }}"
-                break;
-            case DOKU_LEXER_EXIT:
                 break;
         }
         return true;
