@@ -52,13 +52,13 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
     public function handle($match, $state, $pos, Doku_Handler $handler){
 
         switch ($state) {
-            case DOKU_LEXER_SPECIAL: // タイトル指定なし
-            case DOKU_LEXER_ENTER:   // タイトル指定あり
-                $match = substr($match, 2);  //strip '[['
-                $match = rtrim($match, ']|'); //strip ']]' or '|'
+            case DOKU_LEXER_SPECIAL:   // $match ends '}}'
+            case DOKU_LEXER_ENTER:     // $match ends '|'
+
+                $match = trim($match, '{}|');
 
                 list($params, $link) = explode('>', $match, 2);
-                
+
                 // check last part of params (shotcut of interwiki)
                 $shortcut = substr($params, strrpos($params, ' ')+1);
                 if (in_array($shortcut, array_keys(getInterwiki()))) {
@@ -74,8 +74,6 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
                 } else {
                     $target = substr($target, 1); // drop '!'
                 }
-
-                error_log('LINK2 handle0: target='.$target.' params='.$params.' link='.$link);
 
                 // parameters
                 if (!empty($params)) {
@@ -106,8 +104,8 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
         list($state, $opts) = $data;
 
         switch($state) {
-            case DOKU_LEXER_SPECIAL: // タイトル指定なし
-            case DOKU_LEXER_ENTER:   // タイトル指定あり
+            case DOKU_LEXER_SPECIAL:
+            case DOKU_LEXER_ENTER:
 
                 $link = '[['.$opts['link'].']]';
                 $html = strip_tags(p_render($format, p_get_instructions($link), $info), '<a>');
@@ -140,7 +138,6 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
                     }
 
                 }
-                error_log('LINK2 render0: state='.$state.' html='.$html);
 
                 $renderer->doc.= $html;
                 break;

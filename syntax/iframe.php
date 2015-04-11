@@ -114,8 +114,8 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
                     }
                 }
 
-                // name, id, style
-                foreach( array('name', 'id', 'style') as $key) {
+                // name, id, class, style
+                foreach( array('name', 'id', 'class', 'style') as $key) {
                     if (array_key_exists($key, $opts)) {
                         $html.= ' '.$key.'="'.$opts[$key].'"';
                     }
