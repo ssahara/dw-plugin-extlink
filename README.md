@@ -6,9 +6,9 @@ Syntax/Usage
 ------------
 
 
-    ~~[[!> ns:page| **bold** title for the link]]~~ 
+    [[!> ns:page| **bold** title for the link]] 
 
-    ~~{{!> ns:example.pdf| //fancy title of the media file// }} ~~
+    {{!> ns:example.pdf| //fancy title of the media file// }}
 
 
 ----
