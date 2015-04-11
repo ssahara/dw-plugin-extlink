@@ -27,7 +27,7 @@ require_once DOKU_PLUGIN.'syntax.php';
 class syntax_plugin_extlink_img extends DokuWiki_Syntax_Plugin {
 
     protected $match_pattern = '\<img\b.*?\>';
-    protected $entry_pattern = '{{img\b.*?>/*?\|(?=.*?}})';
+    protected $entry_pattern = '{{img\b.*?>.*?\|(?=.*?}})';
     protected $exit_pattern  = '}}';
 
     public function getType()  { return 'substition'; }
