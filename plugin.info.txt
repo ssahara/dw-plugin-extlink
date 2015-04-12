@@ -2,6 +2,6 @@ base  extlink
 name  Extended Link syntax plugin
 author Satoshi Sahara
 email  sahara.satoshi@gmail.com
-date   2015-04-11 beta
-desc   Extend DokuWiki Link syntax to open the linked page in a new tab, window or arbitrarily named frame.
+date   2015-04-13 beta
+desc   Extend DokuWiki Link syntax to allow formatting the link text, and to specify frame name where the linked page/media opened, eg. in a same tab, new tab or popup window.
 url    https://github.com/ssahara/dw-plugin-extlink

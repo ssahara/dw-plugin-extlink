@@ -7,7 +7,7 @@
  *
  * SYNTAX: {{!taget params> id or url| title }}
  *
- *         {{example.pdf|title}}           DokuWiki本来のシンタックス
+ *         {{example.pdf|title}}           original DokuWiki syntax
  *
  *         {{!_blank >example.pdf|title}}
  *         {{!! w700 h400 >example.pdf|title}}
@@ -20,15 +20,15 @@ require_once DOKU_PLUGIN.'syntax.php';
 
 class syntax_plugin_extlink_media extends DokuWiki_Syntax_Plugin {
 
-    // image with it's title (not link title)
+    // match image with it's title (not link title)
     protected $image_pattern = '{{![^\n]*?\>[^}|]*?\.(?:png|gif|jpg|jpeg) *\|.*?}}';
 
-    // タイトルありを処理するパターン (title での画像配置がありうる)
+    // match media file link with title
     protected $entry_pattern = '{{![^\n]*?\>[^{]*?\|(?=.*?}})';
     protected $exit_pattern  = '}}';
 
-    // タイトルなしを処理するパターン ("|"を排除する)
-    protected $match_pattern = '{{![^\n]*?\>[^\|\n]+?}}'; // no title
+    // match media file link without title
+    protected $special_pattern = '{{![^\n]*?\>[^\|\n]+?}}'; // no title
 
     public function getType()  { return 'substition'; }
     public function getAllowedTypes() { return array('formatting', 'substition', 'disabled'); }
@@ -36,13 +36,15 @@ class syntax_plugin_extlink_media extends DokuWiki_Syntax_Plugin {
     public function getSort()  { return 305; }
 
     public function connectTo($mode) {
-        // 順番が大事
-        $this->Lexer->addSpecialPattern($this->image_pattern, $mode, substr(get_class($this), 7));
-        $this->Lexer->addEntryPattern($this->entry_pattern, $mode, substr(get_class($this), 7));
-        $this->Lexer->addSpecialPattern($this->match_pattern, $mode, substr(get_class($this), 7));
+        $this->Lexer->addSpecialPattern($this->image_pattern,
+            $mode, substr(get_class($this), 7));
+        $this->Lexer->addEntryPattern($this->entry_pattern,
+            $mode, substr(get_class($this), 7));
+        $this->Lexer->addSpecialPattern($this->special_pattern, $mode, substr(get_class($this), 7));
     }
     public function postConnect() {
-        $this->Lexer->addExitPattern($this->exit_pattern, substr(get_class($this), 7));
+        $this->Lexer->addExitPattern($this->exit_pattern,
+            substr(get_class($this), 7));
     }
 
     /**
@@ -134,7 +136,7 @@ class syntax_plugin_extlink_media extends DokuWiki_Syntax_Plugin {
                                 }
                             }
                         }
-                        unset($opts[$key]);                    
+                        unset($opts[$key]);
                     }
                 }
 

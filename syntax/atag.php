@@ -25,12 +25,12 @@ require_once DOKU_PLUGIN.'syntax.php';
 
 class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
 
-    // タイトルありを処理するパターン
+    // match page link with title
     protected $entry_pattern = '\[\[!.*?\>[^{]*?\|(?=.*?\]\])';
     protected $exit_pattern  = '\]\]';
 
-    // タイトルなしを処理するパターン
-    protected $match_pattern = '\[\[!.*?\>[^\|\n]+?\]\]'; // no title
+    // match page link without title
+    protected $special_pattern = '\[\[!.*?\>[^\|\n]+?\]\]'; // no title
 
     public function getType()  { return 'substition'; }
     public function getAllowedTypes() { return array('formatting', 'substition', 'disabled'); }
@@ -38,12 +38,15 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
     public function getSort()  { return 295; } // < Doku_Parser_Mode_internallink(=300)
 
     public function connectTo($mode) {
-        // 順番が大事
-        $this->Lexer->addEntryPattern($this->entry_pattern, $mode, substr(get_class($this), 7));
-        $this->Lexer->addSpecialPattern($this->match_pattern, $mode, substr(get_class($this), 7));
+        // we must register first the entry pattern, then special pattern.
+        $this->Lexer->addEntryPattern($this->entry_pattern,
+            $mode, substr(get_class($this), 7));
+        $this->Lexer->addSpecialPattern($this->special_pattern,
+            $mode, substr(get_class($this), 7));
     }
     public function postConnect() {
-        $this->Lexer->addExitPattern($this->exit_pattern, substr(get_class($this), 7));
+        $this->Lexer->addExitPattern($this->exit_pattern,
+            substr(get_class($this), 7));
     }
 
     /**
