@@ -52,10 +52,10 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
     public function handle($match, $state, $pos, Doku_Handler $handler){
 
         switch ($state) {
-            case DOKU_LEXER_SPECIAL:   // $match ends '}}'
+            case DOKU_LEXER_SPECIAL:   // $match ends ']]'
             case DOKU_LEXER_ENTER:     // $match ends '|'
 
-                $match = trim($match, '{}|');
+                $match = trim($match, '[]|');
 
                 list($params, $link) = explode('>', $match, 2);
 
