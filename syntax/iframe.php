@@ -39,13 +39,13 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
             $this->Lexer->addSpecialPattern($this->special_pattern,
                 $mode, substr(get_class($this), 7) );
         }
-        if (!empty($this->entry_pattern)) {
+        if ($this->getConf($this->tagname.'_direct')) {
             $this->Lexer->addEntryPattern($this->entry_pattern,
                 $mode, substr(get_class($this), 7) );
         }
     }
-    function postConnect() {
-        if (!empty($this->exit_pattern)) {
+    public function postConnect() {
+        if ($this->getConf($this->tagname.'_direct')) {
             $this->Lexer->addExitPattern($this->exit_pattern,
                 substr(get_class($this), 7) );
         }

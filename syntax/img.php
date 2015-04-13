@@ -24,4 +24,12 @@ class syntax_plugin_extlink_img extends syntax_plugin_extlink_iframe {
         'ismap', 'usemap',
     );
 
+    public function connectTo($mode) {
+        if ($this->getConf($this->tagname.'_direct')) {
+            $this->Lexer->addSpecialPattern($this->special_pattern,
+                $mode, substr(get_class($this), 7) );
+        }
+    }
+
+    public function postConnect() {}
 }
