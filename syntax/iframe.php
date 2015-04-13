@@ -7,7 +7,7 @@
  *
  * SYNTAX: <iframe src=... > ... </iframe>  compatible with <iframe> tag
  *
- *         {{iframe w400 h200 > id| title}} internal page, ?do=export_htmlbody
+ *         {{iframe w400 h200 > id| title}} internal page, ?do=export_xhtml
  *         {{iframe w500 h300 > url}}       external page
  *
  */
@@ -19,26 +19,36 @@ require_once DOKU_PLUGIN.'syntax.php';
 
 class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
 
+    protected $tagname = 'iframe';
     protected $entry_pattern   = '<iframe\b.*?\>(?=.*?</iframe>)';
     protected $exit_pattern    = '</iframe>';
     protected $special_pattern = '{{iframe\b.*?\>.*?}}';
+
+    protected $attributes = array(
+        // 'src', 'width', 'height' are allowed, and we additionally allow
+        'name', 'id', 'class', 'style', 'title',
+    );
+
 
     public function getType()  { return 'substition'; }
     public function getPType() { return 'normal'; }
     public function getSort()  { return 305; }
 
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern($this->special_pattern, $mode,
-            substr(get_class($this), 7)
-        );
-        $this->Lexer->addEntryPattern($this->entry_pattern, $mode,
-            substr(get_class($this), 7)
-        );
+        if (!empty($this->special_pattern)) {
+            $this->Lexer->addSpecialPattern($this->special_pattern,
+                $mode, substr(get_class($this), 7) );
+        }
+        if (!empty($this->entry_pattern)) {
+            $this->Lexer->addEntryPattern($this->entry_pattern,
+                $mode, substr(get_class($this), 7) );
+        }
     }
     function postConnect() {
-        $this->Lexer->addExitPattern($this->exit_pattern,
-            substr(get_class($this), 7)
-        );
+        if (!empty($this->exit_pattern)) {
+            $this->Lexer->addExitPattern($this->exit_pattern,
+                substr(get_class($this), 7) );
+        }
     }
 
     /**
@@ -47,12 +57,15 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
     public function handle($match, $state, $pos, Doku_Handler $handler){
 
         switch ($state) {
+            case DOKU_LEXER_SPECIAL:   // {{iframe  }} or <img ...>
             case DOKU_LEXER_ENTER:     // <iframe ...></iframe>
-                if ($this->getConf('iframe_direct')) {
+
+                if ( (strpos($match, '<'.$this->tagname) === 0) &&
+                      $this->getConf($this->tagname.'_direct') ) {
                     return array($state, $match);
                 }
-            case DOKU_LEXER_SPECIAL:   // {{iframe  }}
-                $match = substr(trim($match, '{}<>'), strlen('iframe'));
+
+                $match = substr(trim($match, '{}<>'), strlen($this->tagname));
 
                 list($params, $id) = explode('>', $match, 2);
                 list($id, $title)  = explode('|', $id, 2);
@@ -82,31 +95,27 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
      * Render output
      */
     public function render($format, Doku_Renderer $renderer, $data) {
-        global $ID, $conf;
 
         if ($format != 'xhtml') return false;
         list($state, $opts) = $data;
 
+        $attrs['_tag'] = $this->tagname;
         switch($state) {
+            case DOKU_LEXER_SPECIAL:   // {{iframe  }} or <img ...>
             case DOKU_LEXER_ENTER:     // <iframe ...></iframe>
-                if ($this->getConf('iframe_direct')) {
-                    $renderer->doc .= $opts;
-                    break;
-                }
-            case DOKU_LEXER_SPECIAL:   // {{iframe  }}
-                $html = '<iframe';
-                // src, height, width, name のほか、title, id, class, style のみ使用可能とする
+
+                if (!is_array($opts)) return array($state, $match);
+
                 // src attribute
                 if (array_key_exists('src', $opts)) {
-                    $url = $this->_resolveSrcUrl($opts['src']);
-                    $html.= ' src="'.$url.'"';
+                    $attrs['src'] = $this->_resolveSrcUrl($opts['src']);
                 }
 
                 // width and height
                 foreach( array('width', 'height') as $key) {
                     if (array_key_exists($key, $opts)) {
-                        if (is_numeric($opts[$key])) {
-                            $html.= ' '.$key.'='.$opts[$key];
+                        if (is_numeric($opts[$key])) {  // size without units (%, em ,..)
+                            $attrs[$key] = $opts[$key];
                         } else {
                             $css = $key.':'.$opts[$key].';';
                             $opts['style'] = implode(' ', array($css, $opts['style']));
@@ -114,25 +123,24 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
                     }
                 }
 
-                // name, id, class, style
-                foreach( array('name', 'id', 'class', 'style') as $key) {
+                // additinal allowed attributes
+                foreach($this->attributes as $key) {
                     if (array_key_exists($key, $opts)) {
-                        $html.= ' '.$key.'="'.$opts[$key].'"';
+                        $attrs[$key] = $opts[$key];
                     }
                 }
 
-                $html.= '>';
-                $renderer->doc .= $html;
+                $renderer->doc .= $this->htmlOpenTag($attrs);
 
-                if ($state == DOKU_LEXER_SPECIAL) {
-                       $renderer->doc .= '</iframe>'.NL;
-                } else $renderer->doc .= NL;
+                
+                if ( ($state == DOKU_LEXER_SPECIAL) &&
+                     (substr($this->special_pattern, -1) != '>') ) {
+                    $renderer->doc .= $this->htmlCloseTag($attrs) . DOKU_LF;
+                }
                 break;
 
-            case DOKU_LEXER_UNMATCHED:
-                break;
             case DOKU_LEXER_EXIT:
-                $renderer->doc .= NL.'</iframe>'.NL;
+                $renderer->doc .= $this->htmlCloseTag($attrs) . DOKU_LF;
                 break;
         }
         return true;
@@ -140,9 +148,9 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
 
 
     /**
-     * resolve src attribute of iframe tags
+     * resolve src attribute
      */
-    private function _resolveSrcUrl($url) {
+    protected function _resolveSrcUrl($url) {
         global $ID;
         if (preg_match('/^https?:\/\//', $url)) {
             return $url;
@@ -163,6 +171,13 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
             }
             return $url;
         }
+    }
+
+    protected function htmlOpenTag($attrs) {
+        return '<'.$attrs['_tag'].' '.buildAttributes($attrs, true).'>';
+    }
+    protected function htmlCloseTag($attrs) {
+        return '</'.$attrs['_tag'].'>';
     }
 
 }
