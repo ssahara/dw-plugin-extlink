@@ -142,9 +142,9 @@ class syntax_plugin_extlink_media extends DokuWiki_Syntax_Plugin {
 
                 // set target attribute
                 if (!empty($opts['target'])) {
-                    $ptn = '/(target=[\"\']).*([\"\'])/';
-                    if (preg_match($ptn, $html_atag) === 1) {
-                        $html = preg_replace($ptn, '${1}'.$opts['target'].'${2}', $html);
+                    $ptn = '/(target=)([\"\']).*\g{-1})/';
+                    if (preg_match($ptn, $html) === 1) {
+                        $html = preg_replace($ptn, '${1}${2}'.$opts['target'].'${2}', $html);
                     } else {
                         $html = str_replace('<a ', '<a target="'.$opts['target'].'" ', $html);
                     }
