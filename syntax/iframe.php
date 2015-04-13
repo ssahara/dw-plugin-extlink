@@ -25,7 +25,7 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
     protected $special_pattern = '{{iframe\b.*?\>.*?}}';
 
     protected $attributes = array(
-        // 'src', 'width', 'height' are allowed, and we additionally allow
+        'src', 'width', 'height',
         'name', 'id', 'class', 'style', 'title',
     );
 
@@ -104,11 +104,16 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
             case DOKU_LEXER_SPECIAL:   // {{iframe  }} or <img ...>
             case DOKU_LEXER_ENTER:     // <iframe ...></iframe>
 
-                if (!is_array($opts)) return array($state, $match);
+                // direct html output
+                if (!is_array($opts)) {
+                    $renderer->doc .= $opts;
+                    return true;
+                }
 
                 // src attribute
                 if (array_key_exists('src', $opts)) {
                     $attrs['src'] = $this->_resolveSrcUrl($opts['src']);
+                    unset($opts['src']);
                 }
 
                 // width and height
@@ -116,6 +121,7 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
                     if (array_key_exists($key, $opts)) {
                         if (is_numeric($opts[$key])) {  // size without units (%, em ,..)
                             $attrs[$key] = $opts[$key];
+                            unset($opts[$key]);
                         } else {
                             $css = $key.':'.$opts[$key].';';
                             $opts['style'] = implode(' ', array($css, $opts['style']));
@@ -132,7 +138,6 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
 
                 $renderer->doc .= $this->htmlOpenTag($attrs);
 
-                
                 if ( ($state == DOKU_LEXER_SPECIAL) &&
                      (substr($this->special_pattern, -1) != '>') ) {
                     $renderer->doc .= $this->htmlCloseTag($attrs) . DOKU_LF;

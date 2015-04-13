@@ -19,9 +19,8 @@ class syntax_plugin_extlink_img extends syntax_plugin_extlink_iframe {
     protected $special_pattern = '<img\b.*?>';
 
     protected $attributes = array(
-        // 'src', 'width', 'height' are allowed, and we additionally allow
-        'alt', 'id', 'class', 'style', 'title',
-        'ismap', 'usemap',
+        'src', 'width', 'height',
+        'alt', 'id', 'class', 'style', 'title', 'ismap', 'usemap',
     );
 
     public function connectTo($mode) {
