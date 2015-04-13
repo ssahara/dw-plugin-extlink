@@ -30,7 +30,7 @@ class syntax_plugin_extlink_media extends DokuWiki_Syntax_Plugin {
     // match media file link without title
     protected $special_pattern = '{{![^\n]*?\>[^\|\n]+?}}'; // no title
 
-    public function getType()  { return 'substition'; }
+    public function getType()  { return 'formatting'; }
     public function getAllowedTypes() { return array('formatting', 'substition', 'disabled'); }
     public function getPType() { return 'normal'; }
     public function getSort()  { return 305; }

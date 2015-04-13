@@ -32,7 +32,7 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
     // match page link without title
     protected $special_pattern = '\[\[!.*?\>[^\|\n]+?\]\]'; // no title
 
-    public function getType()  { return 'substition'; }
+    public function getType()  { return 'formatting'; }
     public function getAllowedTypes() { return array('formatting', 'substition', 'disabled'); }
     public function getPType() { return 'normal'; }
     public function getSort()  { return 295; } // < Doku_Parser_Mode_internallink(=300)
