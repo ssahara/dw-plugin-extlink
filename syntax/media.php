@@ -165,7 +165,7 @@ class syntax_plugin_extlink_media extends DokuWiki_Syntax_Plugin {
                 }
 
                 $renderer->doc.= $html;
-                $renderer->doc.= ($image)?:'';
+                $renderer->doc.= ($image)? $image : '';
                 break;
 
             case DOKU_LEXER_EXIT:
