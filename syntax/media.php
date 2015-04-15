@@ -21,26 +21,27 @@ require_once DOKU_PLUGIN.'syntax.php';
 class syntax_plugin_extlink_media extends DokuWiki_Syntax_Plugin {
 
     // match image with it's title (not link title)
-    protected $image_pattern = '{{![^\n]*?\>[^}|]*?\.(?:png|gif|jpg|jpeg) *\|.*?}}';
+    protected $image_pattern = '{{![^>\n]*?\>[^[\]{}|]*?\.(?:png|gif|jpg|jpeg) *\|.*?}}';
 
     // match media file link with title
-    protected $entry_pattern = '{{![^\n]*?\>[^{]*?\|(?=.*?}})';
+    protected $entry_pattern = '{{![^>\n]*?\>[^[\]{}|]*?\|(?=.*?}})';
     protected $exit_pattern  = '}}';
 
     // match media file link without title
-    protected $special_pattern = '{{![^\n]*?\>[^\|\n]+?}}'; // no title
+    protected $special_pattern = '{{![^>\n]*?\>[^[\]{}|]*?}}'; // no title
 
     public function getType()  { return 'formatting'; }
     public function getAllowedTypes() { return array('formatting', 'substition', 'disabled'); }
     public function getPType() { return 'normal'; }
-    public function getSort()  { return 305; }
+    public function getSort()  { return 319; } // < Doku_Parser_Mode_media(=320)
 
     public function connectTo($mode) {
         $this->Lexer->addSpecialPattern($this->image_pattern,
             $mode, substr(get_class($this), 7));
         $this->Lexer->addEntryPattern($this->entry_pattern,
             $mode, substr(get_class($this), 7));
-        $this->Lexer->addSpecialPattern($this->special_pattern, $mode, substr(get_class($this), 7));
+        $this->Lexer->addSpecialPattern($this->special_pattern,
+            $mode, substr(get_class($this), 7));
     }
     public function postConnect() {
         $this->Lexer->addExitPattern($this->exit_pattern,
@@ -51,14 +52,28 @@ class syntax_plugin_extlink_media extends DokuWiki_Syntax_Plugin {
      * handle syntax
      */
     public function handle($match, $state, $pos, Doku_Handler $handler){
-        global $ID;
 
         switch ($state) {
-            case DOKU_LEXER_SPECIAL:   // $match ends '}}'
+            case DOKU_LEXER_SPECIAL:   // $match ends ']]' or '}}'
             case DOKU_LEXER_ENTER:     // $match ends '|'
-                $match = trim($match, '{}|');
+
+                if ($this->getPluginComponent() == 'atag') {
+                    $match = trim($match, '[]|');
+                } elseif ($this->getPluginComponent() == 'media') {
+                    $match = trim($match, '{}|');
+                }
 
                 list($params, $link) = explode('>', $match, 2);
+
+                // check last part of params (shotcut of interwiki)
+                if ($this->getPluginComponent() == 'atag') {
+                    $shortcut = substr($params, strrpos($params, ' ')+1);
+                    if (in_array($shortcut, array_keys(getInterwiki()))) {
+                        $link = $shortcut.'>'.$link;
+                        $params = substr($params, 0, strrpos($params, ' '));
+                    }
+                    $params = rtrim($params);
+                }
 
                 // get the first param (target attribute of <a> tag)
                 list($target, $params) = explode(' ', $params, 2);
@@ -81,7 +96,7 @@ class syntax_plugin_extlink_media extends DokuWiki_Syntax_Plugin {
                 $handler->_addCall('cdata', array($match), $pos);
                 return false;
 
-            case DOKU_LEXER_EXIT:      // $match is '}}'
+            case DOKU_LEXER_EXIT:      // $match is ']]' or '}}'
                 return array($state, '');
         }
         return false;
@@ -91,7 +106,6 @@ class syntax_plugin_extlink_media extends DokuWiki_Syntax_Plugin {
      * Render output
      */
     public function render($format, Doku_Renderer $renderer, $data) {
-        global $ID, $conf;
 
         if ($format != 'xhtml') return false;
         list($state, $opts) = $data;
@@ -100,11 +114,16 @@ class syntax_plugin_extlink_media extends DokuWiki_Syntax_Plugin {
             case DOKU_LEXER_SPECIAL:
             case DOKU_LEXER_ENTER:
 
-                $link = '{{'.$opts['link'].'}}';
+                if ($this->getPluginComponent() == 'atag') {
+                    $link = '[['.$opts['link'].']]';
+                } elseif ($this->getPluginComponent() == 'media') {
+                    $link = '{{'.$opts['link'].'}}';
+                }
+
                 $html = strip_tags(p_render($format, p_get_instructions($link), $info), '<a><img>');
                 $html = trim($html);
                 if ($state == DOKU_LEXER_ENTER) {
-                    $html = substr($html, 0, -4); // drop "</a>"
+                    $html = substr($html, 0, -4); // drop close tag "</a>"
                 }
                 // separate <a> and <img> elements
                 if (strpos($html, '<img') !== false) {
@@ -114,26 +133,17 @@ class syntax_plugin_extlink_media extends DokuWiki_Syntax_Plugin {
                     $html = substr($html, 0, strpos($html, '>')+1); // drop auto title of media
                 }
 
-                // width and hight for image
+                // width and hight of image
                 if (isset($image)) {
                     foreach( array('width','height') as $key) {
                         if (array_key_exists($key, $opts)) {
                             if (is_numeric($opts[$key])) {
-                                // overdide width or height attribure of img-tag
-                                if (strpos($image, $key.'=') !== false) {
-                                    $image = preg_replace('/\b'.$key.'="?\d+"?/', $key.'='.$opts[$key], $image);
-                                } else {
-                                    $image = str_replace('<img', '<img '.$key.'='.$opts[$key], $image);
-                                }
+                                // overwrite width or height value of img-tag
+                                $image = $this->setAttribute($image, $key, $opts[$key]);
                             } else {
-                                // prepare style attribure of img-tag
+                                // add style attribure of img-tag
                                 $css = $key.':'.$opts[$key].';';
-                                // append style
-                                if (strpos($image, 'style="') !== false) {
-                                    $image = str_replace('style="', 'style="'.$css.' ', $image);
-                                } else {
-                                    $image = str_replace('<img', '<img style="'.$css.'" ', $image);
-                                }
+                                $image = $this->setAttribute($image, 'style', $css);
                             }
                         }
                         unset($opts[$key]);
@@ -142,26 +152,15 @@ class syntax_plugin_extlink_media extends DokuWiki_Syntax_Plugin {
 
                 // set target attribute
                 if (!empty($opts['target'])) {
-                    $ptn = '/(target=)([\"\']).*\g{-1})/';
-                    if (preg_match($ptn, $html) === 1) {
-                        $html = preg_replace($ptn, '${1}${2}'.$opts['target'].'${2}', $html);
-                    } else {
-                        $html = str_replace('<a ', '<a target="'.$opts['target'].'" ', $html);
-                    }
+                    $html = $this->setAttribute($html, 'target', $opts['target']);
                 }
 
-                // opens the linked document in a new window
+                // open the linked document in a new window
                 if ($opts['target'] == 'window') {
-                    //add JavaScript to open a new window
-                    $js = ' onclick="'.$this->_window_open($opts).'"';
-                    $html = str_replace('>', $js.'>',$html);
+                    // add JavaScript to open a new window
+                    $html = $this->setAttribute($html, 'onclick', $this->_window_open($opts));
                     // add class
-                    $ptn = '/(class=[\"\'])(.*[\"\'])/';
-                    if (preg_match($ptn, $html) === 1) {
-                        $html = preg_replace($ptn, '${1}openwindow ${2}', $html);
-                    } else {
-                        $html = str_replace('<a ', 'class="openwindown" ', $html);
-                    }
+                    $html = $this->setAttribute($html, 'class', 'openwindow', true);
                 }
 
                 $renderer->doc.= $html;
@@ -175,6 +174,33 @@ class syntax_plugin_extlink_media extends DokuWiki_Syntax_Plugin {
         return true;
     }
 
+    /**
+     * Set or Append attribute to html tag
+     *
+     * @param  (string) $html   subject of replacement
+     * @param  (string) $key    name of attribute
+     * @param  (string) $value  value of attribute
+     * @param  (string) $append true if appending else overwrite
+     * @return (string) replaced html
+     */
+    private function setAttribute($html, $key, $value, $append=false) {
+        if (strpos($html, ' '.$key.'=') !== false) {
+            $search = '/\b('.$key.')=([\"\'])(.*?)\g{-2}/';
+            if ($append) {
+                $replacement = '${1}=${2}'.$value.' ${3}${2}';
+            } else {
+                $replacement = '${1}=${2}'.$value.'${2}';
+            }
+            $html = preg_replace($search, $replacement, $html, 1);
+        } elseif (strpos($html, ' ') !== false) {
+            $search = strstr($html, ' ', true);
+            $replacement = $search.' '.$key.'="'.$value.'"';
+            $html = str_replace($search, $replacement, $html);
+        } else {
+            $html =rtrim($html, ' />').' '.$key.'="'.$value.'">';
+        }
+        return $html;
+    }
 
     /**
      * JavaScript to open a new window, executed as onclick event
