@@ -184,7 +184,7 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
      * @param  (string) $append true if appending else overwrite
      * @return (string) replaced html
      */
-    private function setAttribute($html, $key, $value, $append=false) {
+    protected function setAttribute($html, $key, $value, $append=false) {
         if (strpos($html, ' '.$key.'=') !== false) {
             $search = '/\b('.$key.')=([\"\'])(.*?)\g{-2}/';
             if ($append) {
@@ -206,7 +206,7 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
     /**
      * JavaScript to open a new window, executed as onclick event
      */
-    private function _window_open($opts) {
+    protected function _window_open($opts) {
 
         if (array_key_exists('width',  $opts)) $win['width']  = $opts['width'];
         if (array_key_exists('height', $opts)) $win['height'] = $opts['height'];
