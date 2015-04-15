@@ -1,6 +1,6 @@
 <?php
 /**
- * DokuWiki Plugin ExtLink; helper component
+ * DokuWiki Plugin ExtLink; parser helper component
  *
  * @license GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author Satoshi Sahara <sahara.satoshi@gmail.com>
@@ -8,7 +8,7 @@
 // must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
 
-class helper_plugin_extlink extends DokuWiki_Plugin {
+class helper_plugin_extlink_parser extends DokuWiki_Plugin {
 
     /**
      * argument parser

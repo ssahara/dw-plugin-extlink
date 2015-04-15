@@ -80,7 +80,7 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
 
                 // parameters
                 if (!empty($params)) {
-                    $args = $this->loadHelper($this->getPluginName());
+                    $args = $this->loadHelper($this->getPluginName().'_parser');
                     $opts = $args->parse($params);
                 }
                 if (!empty($target)) $opts['target'] = $target;
