@@ -73,7 +73,7 @@ class syntax_plugin_extlink_iframe extends DokuWiki_Syntax_Plugin {
                 // handle parameters
                 $params = trim($params);
                 if (!empty($params)) {
-                    $args = $this->loadHelper($this->getPluginName());
+                    $args = $this->loadHelper($this->getPluginName().'_parser');
                     $opts = $args->parse($params);
                 }
                 if (!empty($title)) $opts['title'] = $title;
