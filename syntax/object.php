@@ -167,6 +167,8 @@ class syntax_plugin_extlink_object extends DokuWiki_Syntax_Plugin {
             list($ext, $mime) = mimetype($linkId);
             if (substr($mime, 0, 5) == 'image') { // mediaID
                 $url = ml($linkId);
+            } elseif ($mime != false) { // know media file
+                $url = ml($linkId);
             } elseif ($exists) { //pageID
                 list($id, $section) = explode('#', $linkId, 2);
                 $url = wl($id);
