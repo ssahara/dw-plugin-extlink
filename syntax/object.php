@@ -26,9 +26,9 @@ class syntax_plugin_extlink_object extends DokuWiki_Syntax_Plugin {
     protected $special_pattern = '{{object\b.*?\>.*?}}';
 
     protected $attributes = array(
-        'data', 'form', 'type', 'usemap',
-        'name', 'width', 'height',
-        'id', 'class', 'style', 'title',
+        'data', 'width', 'height',
+        'form', 'type', 'usemap',
+        'name', 'id', 'class', 'style', 'title',
     );
 
 

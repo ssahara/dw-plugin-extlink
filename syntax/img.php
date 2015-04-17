@@ -11,7 +11,7 @@
 
 require_once(dirname(__FILE__).'/iframe.php');
 
-class syntax_plugin_extlink_img extends syntax_plugin_extlink_iframe {
+class syntax_plugin_extlink_img extends syntax_plugin_extlink_object {
 
     protected $tagname = 'img';
     protected $entry_pattern   = '';
@@ -20,7 +20,8 @@ class syntax_plugin_extlink_img extends syntax_plugin_extlink_iframe {
 
     protected $attributes = array(
         'src', 'width', 'height',
-        'alt', 'id', 'class', 'style', 'title', 'ismap', 'usemap',
+        'ismap', 'usemap',
+        'alt', 'id', 'class', 'style', 'title',
     );
 
     public function connectTo($mode) {
