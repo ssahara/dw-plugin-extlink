@@ -79,7 +79,10 @@ class syntax_plugin_extlink_object extends DokuWiki_Syntax_Plugin {
                     $opts = $args->parse($params);
                 }
                 if (!empty($title)) $opts['title'] = $title;
-                if (!empty($id))    $opts['data']  = $id;
+                if (!empty($id)) {
+                   $src = ($this->tagname == 'object') ? 'data' : 'src';
+                   $opts[$src]  = $id;
+                }
                 return array($state, $opts);
 
             case DOKU_LEXER_UNMATCHED:
@@ -103,8 +106,8 @@ class syntax_plugin_extlink_object extends DokuWiki_Syntax_Plugin {
 
         $attrs['_tag'] = $this->tagname;
         switch($state) {
-            case DOKU_LEXER_SPECIAL:   // {{iframe  }} or <img ...>
-            case DOKU_LEXER_ENTER:     // <iframe ...></iframe>
+            case DOKU_LEXER_SPECIAL:   // {object  }} or <object ...>
+            case DOKU_LEXER_ENTER:     // <object ...></object>
 
                 // direct html output
                 if (!is_array($opts)) {
@@ -112,10 +115,11 @@ class syntax_plugin_extlink_object extends DokuWiki_Syntax_Plugin {
                     return true;
                 }
 
-                // data attribute
-                if (array_key_exists('data', $opts)) {
-                    $attrs['data'] = $this->_resolveSrcUrl($opts['data']);
-                    unset($opts['data']);
+                // data or src attribute
+                $src = ($this->tagname == 'object') ? 'data' : 'src';
+                if (array_key_exists($src, $opts)) {
+                    $attrs[$src] = $this->_resolveSrcUrl($opts[$src]);
+                    unset($opts[$src]);
                 }
 
                 // width and height
@@ -157,20 +161,19 @@ class syntax_plugin_extlink_object extends DokuWiki_Syntax_Plugin {
     /**
      * resolve src attribute
      */
-    protected function _resolveSrcUrl($url) {
+    protected function _resolveSrcUrl($id) {
         global $ID;
-        if (preg_match('/^https?:\/\//', $url)) {
-            return $url;
+        if (preg_match('/^https?:\/\//', $id)) {
+            $url = $id;
         } else { // assume resource as linkid, which may include section
-            $linkId = $url;
-            resolve_pageid(getNS($ID), $linkId, $exists);
-            list($ext, $mime) = mimetype($linkId);
-            if (substr($mime, 0, 5) == 'image') { // mediaID
-                $url = ml($linkId);
-            } elseif ($mime != false) { // know media file
-                $url = ml($linkId);
+            resolve_pageid(getNS($ID), $id, $exists);
+            list($ext, $mime) = mimetype($id);
+            if (substr($mime, 0, 5) == 'image') { // mediaID, image
+                $url = ml($id);
+            } elseif ($mime != false) { // mediaID, know media type
+                $url = ml($id);
             } elseif ($exists) { //pageID
-                list($id, $section) = explode('#', $linkId, 2);
+                list($id, $section) = explode('#', $id, 2);
                 $url = wl($id);
                 $url.= ((strpos($url,'?')!==false) ? '&':'?').'do=export_xhtml';
                 $url.= $section ? '#'.$section : '';
@@ -178,8 +181,8 @@ class syntax_plugin_extlink_object extends DokuWiki_Syntax_Plugin {
                 //msg('page not exists ('.$linkId.')',-1);
                 $url = false;
             }
-            return $url;
         }
+        return $url;
     }
 
     protected function htmlOpenTag($attrs) {
