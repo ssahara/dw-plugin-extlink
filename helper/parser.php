@@ -22,7 +22,7 @@ class helper_plugin_extlink_parser extends DokuWiki_Plugin {
         $opts = array();
 
         // parse key = "value" or key = value foramt
-        $val = '([\'"`])(?:[^\'"`]*)\g{-1}|[^\'"`\s]+'; // 前半はクォート式、後半は非クォート式
+        $val = '([\'"`])(?:[^\'"`]*)\g{-1}|[^\'"`\s]+';
         $pattern = "/(\w+)\s*=\s*($val)/";
         preg_match_all($pattern, $args, $matches, PREG_SET_ORDER);
         foreach ($matches as $m) {
@@ -35,7 +35,7 @@ class helper_plugin_extlink_parser extends DokuWiki_Plugin {
             $args = str_replace($m[0], '', $args); // remove parsed substring
         }
 
-        // サイズ指定 （w100% h50px 形式）|（100x50 形式）
+        // size (w100% h50px) | (100x50)
         $val = '\b([wh])([-+]?\d*(?:\.\d+)?(?:em|pt|px|%)?)'.'|';
         $val.= '\b(\d+)[xX](\d+)\b';
         $pattern = "/(?:$val)/";
@@ -53,13 +53,23 @@ class helper_plugin_extlink_parser extends DokuWiki_Plugin {
         if (!isset($opts['height']) && isset($opts['h'])) $opts['height'] = $opts['h'];
         unset($opts['w'], $opts['h']);
 
-        // id 最初に指定したもののみ有効
+        // id : "#" prefxed (like CSS/jQuery selector)
         if (preg_match('/#([\w-]+)/', $args, $m)) {
             $opts['id'] = $m[1];
             $args = str_replace($m[0], '', $args);
         }
         
-        // 残り //連続する半角スペースを1つの半角スペースへ
+        // class : "." prefxed (like CSS/jQuery selector)
+        $pattern = '/\.([\w-]+)/';
+        preg_match_all($pattern, $args, $matches, PREG_PATTERN_ORDER);
+        if (count($matches[1]) > 0) {
+            $opts['class'] = implode(' ', $matches[1]);
+            foreach ($matches[0] as $m) {
+                $args = str_replace($m, '', $args);
+            }
+        }
+
+        // rest, reduce white spaces
         $args = preg_replace('/\s+/', ' ', $words);
         $opts['residue'] = trim($args);
 
