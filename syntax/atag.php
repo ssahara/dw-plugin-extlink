@@ -91,6 +91,7 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
                 }
                 if (!empty($target)) $opts['target'] = $target;
                 $opts['link']   = $link;
+
                 return array($state, $opts);
 
             case DOKU_LEXER_UNMATCHED: // link title
@@ -166,7 +167,20 @@ class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
 
                 $renderer->doc.= $html;
                 $renderer->doc.= ($image)? $image : '';
-                break;
+
+                if (($state == DOKU_LEXER_ENTER) || $image) break;
+
+                // link title text
+                if (array_key_exists('title', $opts)){
+                    $title = $opts['title'];
+                } else {
+                    $link = trim($opts['link']);
+                    $title = p_get_metadata($link, 'title');
+                    if (empty($title)) {
+                        $title = hsc(useHeading('navigation') ? p_get_first_heading($link) : $link);
+                    }
+                }
+                $renderer->doc.= hsc($title);
 
             case DOKU_LEXER_EXIT:
                 $renderer->doc.= '</a>';
