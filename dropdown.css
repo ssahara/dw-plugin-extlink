@@ -1,0 +1,15 @@
+/*
+ * css for jquery-dropdown
+ */
+.plugin_dropdown_ddtrigger {
+    display: inline-block;
+    color: __existing__;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+}
+.plugin_dropdown_ddtrigger:hover {
+    /*background: #F2F2F2;*/
+    background: __background_alt__;
+}
+
