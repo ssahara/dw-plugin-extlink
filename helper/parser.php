@@ -15,6 +15,11 @@ class helper_plugin_extlink_parser extends DokuWiki_Plugin {
      * return each named arguments as array variable
      * also parse size parameters (ex. 100x100) and element id (ex. #sample)
      *
+     * How to use parser helper components from other plugin
+     *
+     *     $args = $this->loadHelper('extlink_parser');
+     *     $opts = $args->parse($params);
+     *
      * @param (string) $args        arguments
      * @return (array) parsed argument
      */
@@ -53,13 +58,13 @@ class helper_plugin_extlink_parser extends DokuWiki_Plugin {
         if (!isset($opts['height']) && isset($opts['h'])) $opts['height'] = $opts['h'];
         unset($opts['w'], $opts['h']);
 
-        // id : "#" prefxed (like CSS/jQuery selector)
+        // id : "#" prefixed word (like CSS/jQuery selector)
         if (preg_match('/#([\w-]+)/', $args, $m)) {
             $opts['id'] = $m[1];
             $args = str_replace($m[0], '', $args);
         }
-        
-        // class : "." prefxed (like CSS/jQuery selector)
+
+        // class : "." prefixed word (like CSS/jQuery selector)
         $pattern = '/\.([\w-]+)/';
         preg_match_all($pattern, $args, $matches, PREG_PATTERN_ORDER);
         if (count($matches[1]) > 0) {

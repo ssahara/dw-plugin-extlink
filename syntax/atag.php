@@ -25,12 +25,12 @@ require_once DOKU_PLUGIN.'syntax.php';
 
 class syntax_plugin_extlink_atag extends DokuWiki_Syntax_Plugin {
 
-    // match page link with title
+    // match page link with title text
     protected $entry_pattern = '\[\[![^>\n]*?\>[^[\]{}|]*?\|(?=.*?\]\])';
     protected $exit_pattern  = '\]\]';
 
-    // match page link without title
-    protected $special_pattern = '\[\[![^>\n]*?\>[^[\]{}|]*?\]\]'; // no title
+    // match page link without title text
+    protected $special_pattern = '\[\[![^>\n]*?\>[^[\]{}|]*?\]\]';
 
     public function getType()  { return 'formatting'; }
     public function getAllowedTypes() { return array('formatting', 'substition', 'disabled'); }
