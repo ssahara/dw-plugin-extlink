@@ -1,15 +1,17 @@
 <?php
 /**
- * DokuWiki Plugin Dropdown; ddpanel
+ * DokuWiki Plugin ExtLink Dropdown; ddpanel
  *
  * @license GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author Satoshi Sahara <sahara.satoshi@gmail.com>
  *
+ * @see also http://labs.abeautifulsite.net/jquery-dropdown/
+ *
  * SYNTAX:
  *    Trigger Link:
- *            [[dropdown>#pid|text]]
+ *            [[dropdown>#pid .class|text]]
  *            [[dropdown>!#pid|text]]   ...dropdown disabled
- *            [[dropdown>#pid|{{image|title of image}}]]
+ *            [[dropdown>#pid|{{image|title of image}} and text]]
  *
  *    Dropdown Content:
  *             <dropdown-panel #pid .class> ... </dropdown-panel>

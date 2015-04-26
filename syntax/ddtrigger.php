@@ -1,15 +1,17 @@
 <?php
 /**
- * DokuWiki Plugin Dropdown; ddtrigger
+ * DokuWiki Plugin ExtLink Dropdown; ddtrigger
  *
  * @license GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author Satoshi Sahara <sahara.satoshi@gmail.com>
  *
+ * @see also http://labs.abeautifulsite.net/jquery-dropdown/
+ *
  * SYNTAX:
  *    Trigger Link:
- *            [[dropdown>#pid|text]]
+ *            [[dropdown>#pid .class|text]]
  *            [[dropdown>!#pid|text]]   ...dropdown disabled
- *            [[dropdown>#pid|{{image|title of image}}]]
+ *            [[dropdown>#pid|{{image|title of image}} and text]]
  *
  *    Dropdown Content:
  *             <dropdown-panel #pid .class> ... </dropdown-panel>
@@ -27,6 +29,10 @@ class syntax_plugin_extlink_ddtrigger extends DokuWiki_Syntax_Plugin {
     protected $exit_pattern  = '\]\]';
 
     protected $triggerClass  = 'plugin_dropdown_ddtrigger';
+
+    protected $attributes = array(
+        'id', 'class', 'style', 'title',
+    );
 
     public function getType()  { return 'formatting'; }
     public function getAllowedTypes() { return array('formatting', 'substition', 'disabled'); }
@@ -60,7 +66,7 @@ class syntax_plugin_extlink_ddtrigger extends DokuWiki_Syntax_Plugin {
                     $args = $this->loadHelper('extlink_parser');
                     $opts = $args->parse($param);
                 }
-                $opts['pid']   = trim($pid);   // panel id
+                $opts['pid'] = trim($pid);   // panel id
                 return array($state, $opts);
 
             case DOKU_LEXER_UNMATCHED:
@@ -83,23 +89,34 @@ class syntax_plugin_extlink_ddtrigger extends DokuWiki_Syntax_Plugin {
 
         if ($format != 'xhtml') return false;
 
-        $class = $this->triggerClass;
-        if (array_key_exists('class', $opts)) {
-            $class.= ' '.$opts['class'];
-        }
-
         switch($state) {
             case DOKU_LEXER_ENTER:
+                $attrs['data-jq-dropdown'] = '#'.ltrim($opts['pid'], '#');
+                $attrs['title'] = '↓dropdown';
+
+                // class attribute
+                $class = $this->triggerClass;
+                if (array_key_exists('class', $opts)) {
+                    $class.= ' '.$opts['class'];
+                    unset($opts['class']);
+                }
                 if ($opts['pid'][0] == '!'){
                     $opts['pid'] = ltrim($opts['pid'], '!');
                     if (strpos($class, 'jq-dropdown-disabled') === false) {
                         $class.= ' jq-dropdown-disabled';
                     }
                 }
+                $attrs['class'] = $class;
 
-                $renderer->doc .= '<span class="'.$class.'"';
-                $renderer->doc .= ' data-jq-dropdown="'.hsc($opts['pid']).'"';
-                $renderer->doc .= ' title="↓dropdown">';
+                // additinal allowed attributes
+                foreach($this->attributes as $key) {
+                    if (array_key_exists($key, $opts)) $attrs[$key] = $opts[$key];
+                }
+                if (mb_substr($attrs['title'],0,1) != '↓') {
+                    $attrs['title'] = '↓'.$attrs['title'];
+                }
+
+                $renderer->doc .= '<span '.buildAttributes($attrs, true).'>';
                 break;
 
             case DOKU_LEXER_EXIT:
