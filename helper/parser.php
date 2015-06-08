@@ -75,7 +75,7 @@ class helper_plugin_extlink_parser extends DokuWiki_Plugin {
         }
 
         // rest, reduce white spaces
-        $args = preg_replace('/\s+/', ' ', $words);
+        $args = preg_replace('/\s+/', ' ', $args);
         $opts['residue'] = trim($args);
 
         return $opts;
