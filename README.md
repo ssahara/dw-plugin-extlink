@@ -37,6 +37,19 @@ This plugin includes **iframe** syntax conponent that embed inline frames in you
 {{iframe name="framename" w720px h600px >ns:iframe:default}}
 ```
 
+### DropDown ###
+
+```
+Trigger Link:
+        [[dropdown>#pid .class|text]]
+        [[dropdown>!#pid|text]]   ...dropdown disabled
+        [[dropdown>#pid|{{image|title of image}} and text]]
+
+Dropdown Content:
+         <dropdown-panel #pid .class> ... </dropdown-panel>
+```
+
+
 ----
 Licensed under the GNU Public License (GPL) version 2
 
