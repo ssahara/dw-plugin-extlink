@@ -21,7 +21,7 @@ class action_plugin_extlink_dropdown extends DokuWiki_Action_Plugin {
     /**
      * Preload javascript and stylesheet
      */
-    public function metaheader_output(&$event, $param) {
+    public function metaheader_output(Doku_Event $event, $param) {
 
         $event->data['script'][] = array(
             'type' => 'text/javascript',
