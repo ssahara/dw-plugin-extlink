@@ -36,27 +36,30 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 if(!defined('DOKU_INC')) die();
-if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
-require_once(DOKU_PLUGIN.'syntax.php');
- 
-class syntax_plugin_markdowku_anchorsinline extends DokuWiki_Syntax_Plugin {
+
+class syntax_plugin_extlink_anchorsinline extends DokuWiki_Syntax_Plugin {
+
+    protected $mode;
+    protected $nested_brackets_re;
+
+    function __construct() {
+        $this->mode = substr(get_class($this), 7);
+        $this->nested_brackets_re = str_repeat('(?>[^\[\]]+|\[', 6) . str_repeat('\])*', 6);
+    }
 
     function getType()  { return 'substition'; }
     function getPType() { return 'normal'; }
     function getSort()  { return 102; }
-    
+
     function connectTo($mode) {
-        $this->nested_brackets_re =
-            str_repeat('(?>[^\[\]]+|\[', 6).
-            str_repeat('\])*', 6);
         $this->Lexer->addSpecialPattern(
             '\['.$this->nested_brackets_re.'\]\([ \t]*<?.+?>?[ \t]*(?:[\'"].*?[\'"])?\)',
             $mode,
-            'plugin_markdowku_anchorsinline'
+            $this->mode
         );
     }
 
-    function handle($match, $state, $pos, &$handler) {
+    function handle($match, $state, $pos, Doku_Handler $handler) {
         if ($state == DOKU_LEXER_SPECIAL) {
             $text = preg_match(
                 '/^\[('.$this->nested_brackets_re.')\]\([ \t]*<?(.+?)>?[ \t]*(?:[\'"](.*?)[\'"])?[ \t]*?\)$/',
@@ -70,9 +73,9 @@ class syntax_plugin_markdowku_anchorsinline extends DokuWiki_Syntax_Plugin {
         }
         return true;
     }
-    
-    function render($mode, &$renderer, $data) {
+
+    function render($format, Doku_Renderer $renderer, $data) {
         return true;
     }
 }
-//Setup VIM: ex: et ts=4 enc=utf-8 :
+
