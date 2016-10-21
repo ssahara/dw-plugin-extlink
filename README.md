@@ -49,10 +49,10 @@ Dropdown Content:
          <dropdown-panel #pid .class> ... </dropdown-panel>
 ```
 
-### markdown link ###
+### Markdown inline-style links in DokuWiki ###
 
 ```
-     [link name](url "title")
+     [link name](url "title")      [example](http://example.com "Example domain")
      [link name](url)
      [link name]("title")
 ```
@@ -62,4 +62,4 @@ Dropdown Content:
 Licensed under the GNU Public License (GPL) version 2
 
 
-(c) 2015 Satoshi Sahara \<sahara.satoshi@gmail.com>
+(c) 2015-2016 Satoshi Sahara \<sahara.satoshi@gmail.com>
