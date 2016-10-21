@@ -77,8 +77,7 @@ class syntax_plugin_extlink_markdownlink extends DokuWiki_Syntax_Plugin {
         // external url might be an attack vector, only allow registered protocols
         if (substr($url, 0, 1) !== '/') {
             if (is_null($this->schemes)) $this->schemes = getSchemes();
-            list($scheme) = explode('://', $url);
-            $scheme = strtolower($scheme);
+            $scheme = strtolower(parse_url($url, PHP_URL_SCHEME));
             if (!in_array($scheme, $this->schemes)) {
                 if (empty($title)) $title = $url;
                 $url = '';
