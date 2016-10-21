@@ -49,6 +49,14 @@ Dropdown Content:
          <dropdown-panel #pid .class> ... </dropdown-panel>
 ```
 
+### markdown link ###
+
+```
+     [link name](url "title")
+     [link name](url)
+     [link name]("title")
+```
+
 
 ----
 Licensed under the GNU Public License (GPL) version 2
