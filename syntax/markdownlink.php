@@ -74,6 +74,9 @@ class syntax_plugin_extlink_markdownlink extends DokuWiki_Syntax_Plugin {
 
         list($state, $text, $url, $title) = $data;
 
+        // Experimental: allow formatting of anchor text
+        $text = substr(p_render('xhtml', p_get_instructions($text), $info), 5, -6);
+
         // external url might be an attack vector, only allow registered protocols
         if (substr($url, 0, 1) !== '/') {
             if (is_null($this->schemes)) $this->schemes = getSchemes();
